@@ -11,6 +11,11 @@ class ProductController
  
     public function __construct() 
     { 
+        // Start session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         $this->db = (new Database())->getConnection(); 
         $this->productModel = new ProductModel($this->db); 
   } 
@@ -18,6 +23,7 @@ class ProductController
     public function index() 
     { 
         $products = $this->productModel->getProducts(); 
+        $categories = (new CategoryModel($this->db))->getCategories();
         include 'app/views/product/list.php'; 
     } 
  
@@ -114,7 +120,7 @@ $price, $category_id, $image);
  
     private function uploadImage($file) 
     { 
-        $target_dir = "uploads/"; 
+        $target_dir = "public/uploads/"; 
          
         // Kiểm tra và tạo thư mục nếu chưa tồn tại 
         if (!is_dir($target_dir)) { 
@@ -148,38 +154,77 @@ $price, $category_id, $image);
      
         return $target_file; 
     } 
-     
-    public function addToCart($id) 
-    { 
-        $product = $this->productModel->getProductById($id); 
-        if (!$product) { echo "Không tìm thấy sản phẩm."; 
-            return; 
-        } 
  
-        if (!isset($_SESSION['cart'])) { 
-            $_SESSION['cart'] = []; 
-        } 
- 
-        if (isset($_SESSION['cart'][$id])) { 
-            $_SESSION['cart'][$id]['quantity']++; 
-        } else { 
-            $_SESSION['cart'][$id] = [ 
-                'name' => $product->name, 
-                'price' => $product->price, 
-                'quantity' => 1, 
-                'image' => $product->image 
-            ]; 
-        } 
- 
-        header('Location: /THPHP/webbanhangtuan2/Product/cart'); 
-    } 
- 
-    public function cart() 
-    { 
-        $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : []; 
-        include 'app/views/product/cart.php'; 
-    } 
- 
+    // Thêm sản phẩm vào giỏ hàng
+    public function addToCart()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Khởi tạo giỏ hàng nếu chưa có
+            if (!isset($_SESSION['cart'])) {
+                $_SESSION['cart'] = array();
+            }
+
+            $product_id = $_POST['product_id'];
+            $quantity = $_POST['quantity'] ?? 1;
+
+            // Lấy thông tin sản phẩm
+            $product = $this->productModel->getProductById($product_id);
+
+            if ($product) {
+                // Nếu sản phẩm đã có trong giỏ hàng, tăng số lượng
+                if (isset($_SESSION['cart'][$product_id])) {
+                    $_SESSION['cart'][$product_id]['quantity'] += $quantity;
+                } else {
+                    // Nếu chưa có, thêm mới vào giỏ hàng
+                    $_SESSION['cart'][$product_id] = [
+                        'id' => $product_id,
+                        'name' => $product->name,
+                        'price' => $product->price,
+                        'quantity' => $quantity,
+                        'image' => $product->image
+                    ];
+                }
+
+                // Chuyển hướng đến trang giỏ hàng
+                header('Location: /THPHP/webbanhangtuan2/Product/cart');
+                exit();
+            }
+        }
+        // Nếu có lỗi, chuyển về trang sản phẩm
+        header('Location: /THPHP/webbanhangtuan2/Product');
+    }
+
+    // Hiển thị giỏ hàng
+    public function cart()
+    {
+        $cart = $_SESSION['cart'] ?? [];
+        include 'app/views/product/cart.php';
+    }
+
+    // Cập nhật số lượng trong giỏ hàng
+    public function updateCart()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quantity'])) {
+            foreach ($_POST['quantity'] as $product_id => $quantity) {
+                if ($quantity > 0) {
+                    $_SESSION['cart'][$product_id]['quantity'] = $quantity;
+                } else {
+                    unset($_SESSION['cart'][$product_id]);
+                }
+            }
+        }
+        header('Location: /THPHP/webbanhangtuan2/Product/cart');
+    }
+
+    // Xóa sản phẩm khỏi giỏ hàng
+    public function removeFromCart($product_id)
+    {
+        if (isset($_SESSION['cart'][$product_id])) {
+            unset($_SESSION['cart'][$product_id]);
+        }
+        header('Location: /THPHP/webbanhangtuan2/Product/cart');
+    }
+
     public function checkout() 
     { 
         include 'app/views/product/checkout.php'; 
@@ -246,4 +291,4 @@ quantity, price) VALUES (:order_id, :product_id, :quantity, :price)";
         include 'app/views/product/orderConfirmation.php'; 
     } 
 }
-?> 
+?>

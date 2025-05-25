@@ -67,4 +67,98 @@
     </div>
 </form>
 
+<style>
+.image-preview-container {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: var(--background-light);
+    border: 2px dashed #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.image-preview-container:hover {
+    border-color: var(--primary-color);
+}
+
+.image-preview {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+.image-preview-placeholder {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    background-color: var(--background-light);
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.image-preview-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.image-preview-placeholder span {
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control {
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+</style>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const placeholder = document.getElementById('previewPlaceholder');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+        placeholder.style.display = 'flex';
+    }
+}
+</script>
+
 <?php include 'app/views/shares/footer.php'; ?>
