@@ -1,0 +1,20 @@
+.checkout-summary .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.checkout-product-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.checkout-product-item:last-child {
+    border-bottom: none;
+}
+
+.empty-cart-icon {
+    font-size: 4rem;
+    color: var(--text-light);
+    opacity: 0.7;
+} 
