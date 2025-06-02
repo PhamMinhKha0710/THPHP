@@ -69,6 +69,18 @@
                     <span class="badge bg-primary">Mới</span>
                 </div>
 
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <div class="admin-actions mb-3">
+                    <a href="/THPHP/WebBanHangtuan2/Product/edit/<?php echo $product->id; ?>" class="btn btn-warning me-2">
+                        <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                    </a>
+                    <a href="/THPHP/WebBanHangtuan2/Product/delete/<?php echo $product->id; ?>" class="btn btn-danger" 
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                        <i class="fas fa-trash-alt me-1"></i>Xóa
+                    </a>
+                </div>
+                <?php endif; ?>
+
                 <!-- Giá -->
                 <div class="price-section mb-4">
                     <div class="current-price"><?php echo number_format($product->price, 0, ',', '.'); ?> VNĐ</div>

@@ -1,0 +1,120 @@
+/* Hero Slider */
+.glide__bullet {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    border-radius: 50%;
+    margin: 0 5px;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.glide__bullet--active {
+    background-color: #fff;
+    transform: scale(1.3);
+}
+
+.glide__bullets {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.glide__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.3);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: white;
+    font-size: 16px;
+    z-index: 2;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glide__arrow:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.glide__arrow--left {
+    left: 20px;
+}
+
+.glide__arrow--right {
+    right: 20px;
+}
+
+/* Feature Boxes */
+.feature-box {
+    transition: all 0.3s ease;
+}
+
+.feature-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.feature-box i {
+    color: #212529;
+}
+
+/* Newsletter Section */
+.newsletter {
+    background-color: #f8f9fa;
+    padding: 3rem 0;
+}
+
+.newsletter h3 {
+    font-weight: 600;
+}
+
+.newsletter-form .form-control {
+    height: 50px;
+}
+
+.newsletter-form .btn {
+    height: 50px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* Image height styles */
+.hero-banner img {
+    height: 600px;
+}
+
+.category-card img {
+    height: 350px;
+    object-fit: cover;
+}
+
+.product-card .primary-image {
+    height: 300px;
+}
+
+.promo-banner img {
+    height: 300px;
+    object-fit: cover;
+}
+
+.promo-content {
+    width: 50%;
+}
+
+.instagram-item img {
+    height: 150px;
+    object-fit: cover;
+}
+
+.newsletter-input {
+    max-width: 500px;
+} 
