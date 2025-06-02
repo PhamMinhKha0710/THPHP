@@ -1,90 +1,174 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<div class="container py-4">
-    <h1 class="mb-4">Giỏ hàng</h1>
-
-    <?php if (!empty($cart)): ?>
-        <form action="/THPHP/webbanhangtuan2/Product/updateCart" method="POST">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th>Hình ảnh</th>
-                            <th>Giá</th>
-                            <th>Số lượng</th>
-                            <th>Tổng</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                        $total = 0;
-                        foreach ($cart as $id => $item): 
-                            $itemTotal = $item['price'] * $item['quantity'];
-                            $total += $itemTotal;
-                        ?>
-                            <tr>
-                                <td class="align-middle"><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="align-middle">
-                                    <?php if ($item['image']): ?>
-                                        <img src="/THPHP/WebBanHangtuan2/<?php echo $item['image']; ?>" 
-                                             alt="<?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?>" 
-                                             class="img-thumbnail"
-                                             style="max-width: 100px;">
-                                    <?php endif; ?>
-                                </td>
-                                <td class="align-middle"><?php echo number_format($item['price'], 0, ',', '.'); ?> VNĐ</td>
-                                <td class="align-middle">
-                                    <input type="number" 
-                                           name="quantity[<?php echo $id; ?>]" 
-                                           value="<?php echo $item['quantity']; ?>" 
-                                           min="1" 
-                                           class="form-control" 
-                                           style="width: 80px;">
-                                </td>
-                                <td class="align-middle"><?php echo number_format($itemTotal, 0, ',', '.'); ?> VNĐ</td>
-                                <td class="align-middle">
-                                    <a href="/THPHP/webbanhangtuan2/Product/removeFromCart/<?php echo $id; ?>" 
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
-                                        <i class="fas fa-trash"></i> Xóa
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="4" class="text-right"><strong>Tổng cộng:</strong></td>
-                            <td><strong><?php echo number_format($total, 0, ',', '.'); ?> VNĐ</strong></td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+<!-- Page header -->
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1">Giỏ hàng</h1>
+                <p class="text-muted small mb-0">Quản lý các sản phẩm trong giỏ hàng của bạn</p>
             </div>
-            <div class="d-flex justify-content-between mt-3">
-                <a href="/THPHP/webbanhangtuan2/Product" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
-                </a>
-                <div>
-                    <button type="submit" class="btn btn-info mr-2">
-                        <i class="fas fa-sync"></i> Cập nhật giỏ hàng
-                    </button>
-                    <a href="/THPHP/webbanhangtuan2/Product/checkout" class="btn btn-success">
-                        <i class="fas fa-shopping-cart"></i> Thanh Toán
-                    </a>
+            <a href="/THPHP/WebBanHangtuan2/Product" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-1"></i>Tiếp tục mua sắm
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <?php if (!empty($cart)): ?>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 py-3">Sản phẩm</th>
+                                        <th class="py-3">Giá</th>
+                                        <th class="py-3">Số lượng</th>
+                                        <th class="py-3">Tổng</th>
+                                        <th class="py-3"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    $total = 0;
+                                    foreach ($cart as $id => $item): 
+                                        $itemTotal = $item['price'] * $item['quantity'];
+                                        $total += $itemTotal;
+                                    ?>
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <?php if ($item['image']): ?>
+                                                        <img src="/THPHP/WebBanHangtuan2/<?php echo $item['image']; ?>" 
+                                                             alt="<?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                             class="img-thumbnail rounded cart-product-image">
+                                                    <?php endif; ?>
+                                                    <div class="ms-3">
+                                                        <h6 class="mb-0"><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><?php echo number_format($item['price'], 0, ',', '.'); ?> VNĐ</td>
+                                            <td>
+                                                <div class="quantity-control d-flex align-items-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary quantity-btn" data-action="decrease" data-id="<?php echo $id; ?>">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <input type="number" 
+                                                           id="quantity-<?php echo $id; ?>"
+                                                           name="quantity[<?php echo $id; ?>]" 
+                                                           value="<?php echo $item['quantity']; ?>" 
+                                                           min="1" 
+                                                           class="form-control form-control-sm quantity-input mx-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary quantity-btn" data-action="increase" data-id="<?php echo $id; ?>">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="fw-medium"><?php echo number_format($itemTotal, 0, ',', '.'); ?> VNĐ</td>
+                                            <td>
+                                                <a href="/THPHP/webbanhangtuan2/Product/removeFromCart/<?php echo $id; ?>" 
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <form action="/THPHP/webbanhangtuan2/Product/updateCart" method="POST" id="update-cart-form">
+                    <?php foreach ($cart as $id => $item): ?>
+                        <input type="hidden" name="quantity[<?php echo $id; ?>]" id="form-quantity-<?php echo $id; ?>" value="<?php echo $item['quantity']; ?>">
+                    <?php endforeach; ?>
+                    <div class="d-flex justify-content-end mb-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sync me-1"></i> Cập nhật giỏ hàng
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm cart-summary">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">Tổng đơn hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Tạm tính</span>
+                            <span class="fw-medium"><?php echo number_format($total, 0, ',', '.'); ?> VNĐ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Phí vận chuyển</span>
+                            <span class="fw-medium">0 VNĐ</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="fw-medium">Tổng cộng</span>
+                            <span class="fw-bold text-primary h5 mb-0"><?php echo number_format($total, 0, ',', '.'); ?> VNĐ</span>
+                        </div>
+                        <a href="/THPHP/webbanhangtuan2/Product/checkout" class="btn btn-success w-100">
+                            <i class="fas fa-check-circle me-1"></i> Tiến hành thanh toán
+                        </a>
+                    </div>
                 </div>
             </div>
-        </form>
+        </div>
     <?php else: ?>
         <div class="text-center py-5">
-            <p class="h4 mb-4">Giỏ hàng của bạn đang trống</p>
+            <div class="mb-4">
+                <i class="fas fa-shopping-cart empty-cart-icon"></i>
+            </div>
+            <h4 class="mb-3">Giỏ hàng của bạn đang trống</h4>
+            <p class="text-muted mb-4">Hãy thêm sản phẩm vào giỏ hàng để tiến hành mua sắm</p>
             <a href="/THPHP/webbanhangtuan2/Product" class="btn btn-primary">
-                <i class="fas fa-shopping-bag"></i> Tiếp tục mua sắm
+                <i class="fas fa-shopping-bag me-1"></i> Tiếp tục mua sắm
             </a>
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle quantity buttons
+    document.querySelectorAll('.quantity-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const action = this.getAttribute('data-action');
+            const inputElement = document.getElementById('quantity-' + id);
+            const formInputElement = document.getElementById('form-quantity-' + id);
+            
+            let currentValue = parseInt(inputElement.value);
+            
+            if (action === 'increase') {
+                currentValue++;
+            } else if (action === 'decrease' && currentValue > 1) {
+                currentValue--;
+            }
+            
+            inputElement.value = currentValue;
+            formInputElement.value = currentValue;
+        });
+    });
+    
+    // Update form values when input changes directly
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const id = this.id.split('-')[1];
+            const formInputElement = document.getElementById('form-quantity-' + id);
+            formInputElement.value = this.value;
+        });
+    });
+});
+</script>
 
 <?php include 'app/views/shares/footer.php'; ?>

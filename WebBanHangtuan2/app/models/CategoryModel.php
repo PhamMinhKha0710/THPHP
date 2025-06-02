@@ -9,7 +9,9 @@ class CategoryModel
     }
     public function getCategories()
     {
-        $query = "SELECT id, name, description FROM " . $this->table_name;
+        $query = "SELECT c.id, c.name, c.description, 
+                        (SELECT COUNT(*) FROM product p WHERE p.category_id = c.id) AS product_count
+                 FROM " . $this->table_name . " c";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);

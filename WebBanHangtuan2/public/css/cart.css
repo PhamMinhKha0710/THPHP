@@ -1,0 +1,34 @@
+.quantity-control {
+    white-space: nowrap;
+}
+
+.quantity-input {
+    text-align: center;
+    border-radius: 0.375rem;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.cart-summary .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.empty-cart-icon {
+    font-size: 4rem;
+    color: var(--text-light);
+    opacity: 0.7;
+} 

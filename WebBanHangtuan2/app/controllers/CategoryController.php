@@ -11,6 +11,12 @@ class CategoryController
         $this->db = (new Database())->getConnection();
         $this->categoryModel = new CategoryModel($this->db);
     }
+    
+    public function index()
+    {
+        $this->list();
+    }
+    
     public function list()
     {
         $categories = $this->categoryModel->getCategories();
