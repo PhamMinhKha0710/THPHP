@@ -3,11 +3,13 @@
 require_once('app/config/database.php'); 
 require_once('app/models/ProductModel.php'); 
 require_once('app/models/CategoryModel.php'); 
+require_once('app/models/SiteConfigModel.php');
  
 class ProductController 
 { 
     private $productModel; 
     private $db; 
+    private $categoryModel;
  
     public function __construct() 
     { 
@@ -18,14 +20,46 @@ class ProductController
         
         $this->db = (new Database())->getConnection(); 
         $this->productModel = new ProductModel($this->db); 
-  } 
+        $this->categoryModel = new CategoryModel($this->db);
+    } 
  
     public function index() 
     { 
         $products = $this->productModel->getProducts(); 
-        $categories = (new CategoryModel($this->db))->getCategories();
+        $categories = $this->categoryModel->getCategories();
         include 'app/views/product/list.php'; 
     } 
+
+    /**
+     * Display products from a specific category
+     * 
+     * @param string $categorySlug URL-friendly slug of the category
+     */
+    public function category($categorySlug = '') 
+    {
+        // Create breadcrumbs for category page
+        $breadcrumbs = [
+            'Sản phẩm' => '/THPHP/WebBanHangtuan2/Product'
+        ];
+        
+        // Get category by slug
+        $category = $this->categoryModel->getCategoryBySlug($categorySlug);
+        
+        if ($category) {
+            // Add category to breadcrumbs
+            $breadcrumbs[htmlspecialchars($category->name)] = null;
+            
+            // Get products from this category
+            $products = $this->productModel->getProductsByCategory($category->id);
+            
+            // Include the category view
+            include 'app/views/product/category.php';
+        } else {
+            // Category not found, redirect to all products
+            header('Location: /THPHP/WebBanHangtuan2/Product');
+            exit;
+        }
+    }
  
     public function show($id) 
     { 
@@ -40,41 +74,76 @@ class ProductController
  
     public function add() 
     { 
-        $categories = (new CategoryModel($this->db))->getCategories(); 
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            echo '<script>alert("Bạn không có quyền thực hiện chức năng này!");</script>';
+            echo '<script>window.location.href = "/THPHP/webbanhangtuan2/Product";</script>';
+            exit;
+        }
+        
+        $categories = $this->categoryModel->getCategories(); 
         include_once 'app/views/product/add.php'; 
     } 
  
     public function save() 
     { 
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            echo '<script>alert("Bạn không có quyền thực hiện chức năng này!");</script>';
+            echo '<script>window.location.href = "/THPHP/webbanhangtuan2/Product";</script>';
+            exit;
+        }
+        
         if ($_SERVER['REQUEST_METHOD'] == 'POST') { 
             $name = $_POST['name'] ?? ''; 
             $description = $_POST['description'] ?? ''; 
             $price = $_POST['price'] ?? ''; 
             $category_id = $_POST['category_id'] ?? null; 
- 
-            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) { 
-                $image = $this->uploadImage($_FILES['image']); 
-            } else { 
-                $image = ""; 
-            } 
-           
-            $result = $this->productModel->addProduct($name, $description, $price, 
+            $image_source = $_POST['image_source'] ?? 'file';
+            $image = "";
+            
+            try {
+                if ($image_source === 'file') {
+                    // Xử lý tải lên từ file
+                    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) { 
+                        $image = $this->uploadImage($_FILES['image']); 
+                    }
+                } else {
+                    // Xử lý từ URL
+                    if (!empty($_POST['image_url'])) {
+                        $image = $this->saveImageFromUrl($_POST['image_url']);
+                    }
+                }
+               
+                $result = $this->productModel->addProduct($name, $description, $price, 
 $category_id, $image); 
- 
-            if (is_array($result)) { 
-                $errors = $result; 
-                $categories = (new CategoryModel($this->db))->getCategories(); 
-                include 'app/views/product/add.php'; 
-            } else { 
-  header('Location: /THPHP/webbanhangtuan2/Product'); 
-            } 
+         
+                if (is_array($result)) { 
+                    $errors = $result; 
+                    $categories = $this->categoryModel->getCategories(); 
+                    include 'app/views/product/add.php'; 
+                } else { 
+                    header('Location: /THPHP/webbanhangtuan2/Product'); 
+                }
+            } catch (Exception $e) {
+                $errors = ['image' => $e->getMessage()];
+                $categories = $this->categoryModel->getCategories(); 
+                include 'app/views/product/add.php';
+            }
         } 
     } 
  
     public function edit($id) 
     { 
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            echo '<script>alert("Bạn không có quyền thực hiện chức năng này!");</script>';
+            echo '<script>window.location.href = "/THPHP/webbanhangtuan2/Product";</script>';
+            exit;
+        }
+        
         $product = $this->productModel->getProductById($id); 
-        $categories = (new CategoryModel($this->db))->getCategories(); 
+        $categories = $this->categoryModel->getCategories(); 
  
         if ($product) { 
             include 'app/views/product/edit.php'; 
@@ -85,18 +154,36 @@ $category_id, $image);
  
     public function update() 
     { 
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            echo '<script>alert("Bạn không có quyền thực hiện chức năng này!");</script>';
+            echo '<script>window.location.href = "/THPHP/webbanhangtuan2/Product";</script>';
+            exit;
+        }
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') { 
             $id = $_POST['id']; 
             $name = $_POST['name']; 
             $description = $_POST['description']; 
             $price = $_POST['price']; 
             $category_id = $_POST['category_id']; 
- 
-            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) { 
-                $image = $this->uploadImage($_FILES['image']); 
-            } else { 
-                $image = $_POST['existing_image']; 
-            } 
+            $image_source = $_POST['image_source'] ?? 'file';
+            
+            if ($image_source === 'file') {
+                // Xử lý tải lên từ file
+                if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) { 
+                    $image = $this->uploadImage($_FILES['image']); 
+                } else { 
+                    $image = $_POST['existing_image']; 
+                }
+            } else {
+                // Xử lý từ URL
+                if (!empty($_POST['image_url'])) {
+                    $image = $this->saveImageFromUrl($_POST['image_url']);
+                } else {
+                    $image = $_POST['existing_image'];
+                }
+            }
  
             $edit = $this->productModel->updateProduct($id, $name, $description, 
 $price, $category_id, $image); 
@@ -111,6 +198,13 @@ $price, $category_id, $image);
  
     public function delete($id) 
     { 
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            echo '<script>alert("Bạn không có quyền thực hiện chức năng này!");</script>';
+            echo '<script>window.location.href = "/THPHP/webbanhangtuan2/Product";</script>';
+            exit;
+        }
+        
         if ($this->productModel->deleteProduct($id)) { 
   header('Location: /THPHP/webbanhangtuan2/Product'); 
         } else { 
@@ -290,5 +384,214 @@ quantity, price) VALUES (:order_id, :product_id, :quantity, :price)";
     { 
         include 'app/views/product/orderConfirmation.php'; 
     } 
+
+    // Phương thức để lưu ảnh từ URL
+    private function saveImageFromUrl($url) {
+        $target_dir = "public/uploads/";
+        
+        // Kiểm tra và tạo thư mục nếu chưa tồn tại 
+        if (!is_dir($target_dir)) { 
+            mkdir($target_dir, 0777, true); 
+        }
+        
+        // Kiểm tra URL hợp lệ
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new Exception("URL hình ảnh không hợp lệ.");
+        }
+        
+        // Parse URL to get file extension
+        $path_parts = pathinfo(parse_url($url, PHP_URL_PATH));
+        $extension = isset($path_parts['extension']) ? strtolower($path_parts['extension']) : '';
+        
+        // Check if extension is an image type
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (!in_array($extension, $allowed_extensions)) {
+            // If extension isn't obviously an image, we'll still try to download and validate
+            $extension = 'jpg'; // Default
+        }
+        
+        // Create unique filename
+        $file_name = uniqid() . '_url_image.' . $extension;
+        $target_file = $target_dir . $file_name;
+        
+        // Set a longer timeout for slow servers
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 30, // 30 seconds timeout
+                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            ]
+        ]);
+        
+        // Download the image - with error suppression
+        $image_data = @file_get_contents($url, false, $context);
+        
+        // Check if download was successful
+        if ($image_data === false) {
+            throw new Exception("Không thể tải hình ảnh từ URL này. Vui lòng kiểm tra lại URL.");
+        }
+        
+        // Check file size (10MB limit)
+        if (strlen($image_data) > 10 * 1024 * 1024) {
+            throw new Exception("Kích thước hình ảnh quá lớn (vượt quá 10MB).");
+        }
+        
+        // Skip content type validation - just try to create an image from the data
+        $temp_image = @imagecreatefromstring($image_data);
+        if (!$temp_image) {
+            // Try with direct file saving and check with getimagesize
+            if (file_put_contents($target_file, $image_data) === false) {
+                throw new Exception("Có lỗi xảy ra khi lưu hình ảnh.");
+            }
+            
+            // Validate using getimagesize instead
+            $image_info = @getimagesize($target_file);
+            if (!$image_info) {
+                // Clean up the invalid file
+                @unlink($target_file);
+                throw new Exception("Dữ liệu tải về không phải là hình ảnh hợp lệ.");
+            }
+            
+            return $target_file;
+        }
+        
+        // We have a valid image - clean up and save
+        imagedestroy($temp_image);
+        
+        if (file_put_contents($target_file, $image_data) === false) {
+            throw new Exception("Có lỗi xảy ra khi lưu hình ảnh.");
+        }
+        
+        return $target_file;
+    }
+
+    /**
+     * Search for products based on a query string
+     */
+    public function search()
+    {
+        // Get the search query from the request
+        $query = isset($_GET['query']) ? trim($_GET['query']) : '';
+        
+        // If query is empty, redirect to product list
+        if (empty($query)) {
+            header('Location: /THPHP/WebBanHangtuan2/Product');
+            exit;
+        }
+        
+        // Create breadcrumbs for search results page
+        $breadcrumbs = [
+            'Sản phẩm' => '/THPHP/WebBanHangtuan2/Product',
+            'Tìm kiếm' => null,
+            'Kết quả cho: ' . htmlspecialchars($query) => null
+        ];
+        
+        // Get categories for filtering
+        $categories = $this->categoryModel->getCategories();
+        
+        // Search for products using the model
+        $searchResults = $this->productModel->searchProducts($query);
+        
+        // Load the search results view
+        include 'app/views/product/search.php';
+    }
+
+    /**
+     * Display new arrivals products
+     */
+    public function newArrivals()
+    {
+        // Create breadcrumbs for new arrivals page
+        $breadcrumbs = [
+            'Sản phẩm' => '/THPHP/WebBanHangtuan2/Product',
+            'Hàng mới về' => null
+        ];
+        
+        // Get new arrivals products
+        $products = $this->productModel->getNewArrivalsProducts();
+        
+        // Include the new arrivals view
+        include 'app/views/product/new-arrivals.php';
+    }
+    
+    /**
+     * Display sale products
+     */
+    public function sale()
+    {
+        // Create breadcrumbs for sale page
+        $breadcrumbs = [
+            'Sản phẩm' => '/THPHP/WebBanHangtuan2/Product',
+            'Khuyến mãi' => null
+        ];
+        
+        // Get sale products
+        $products = $this->productModel->getSaleProducts();
+        
+        // Include the sale view
+        include 'app/views/product/sale.php';
+    }
+
+    /**
+     * Filter products by size or price
+     */
+    public function filter()
+    {
+        $categories = $this->categoryModel->getCategories();
+        $size = isset($_GET['size']) ? $_GET['size'] : null;
+        $price = isset($_GET['price']) ? $_GET['price'] : null;
+        $products = [];
+        
+        if ($size) {
+            // In a real application, we would filter by size in the database
+            // For now, we'll just get all products and pretend to filter
+            $allProducts = $this->productModel->getProducts();
+            foreach ($allProducts as $product) {
+                // Simulate filtering by adding products based on some condition
+                // In practice, you would have a proper size field in your database
+                if (rand(0, 1) == 1) { // 50% chance to include each product
+                    $product->size = $size; // Add size information for display
+                    $products[] = $product;
+                }
+            }
+        } elseif ($price) {
+            // Parse price range
+            $priceRange = explode('-', $price);
+            if (count($priceRange) == 2) {
+                $minPrice = $priceRange[0];
+                $maxPrice = $priceRange[1];
+                
+                // Use the new model method to filter by price
+                $products = $this->productModel->getProductsByPriceRange($minPrice, $maxPrice);
+            }
+        } else {
+            // If no filter is specified, get all products
+            $products = $this->productModel->getProducts();
+        }
+        
+        // Pass filter information to the view
+        $activeFilter = [
+            'type' => $size ? 'size' : 'price',
+            'value' => $size ?? $price
+        ];
+        
+        include 'app/views/product/list.php';
+    }
+
+    /**
+     * Sort products by different criteria
+     */
+    public function sort()
+    {
+        $categories = $this->categoryModel->getCategories();
+        $sortBy = isset($_GET['by']) ? $_GET['by'] : 'newest';
+        
+        // Use the new model method to sort products
+        $products = $this->productModel->getSortedProducts($sortBy);
+        
+        // Pass sort information to the view
+        $activeSort = $sortBy;
+        
+        include 'app/views/product/list.php';
+    }
 }
 ?>
