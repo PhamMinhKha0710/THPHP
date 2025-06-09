@@ -1,0 +1,39 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# MVC Architecture Guidelines
+
+This application follows an MVC (Model-View-Controller) architecture:
+
+## Models
+Models in [app/models](mdc:app/models) are responsible for:
+- Database operations
+- Business logic
+- Data validation
+- Example: [AccountModel.php](mdc:app/models/AccountModel.php)
+
+## Views
+Views in [app/views](mdc:app/views) are responsible for:
+- Presenting data to users
+- Containing minimal logic (primarily display logic)
+- Including shared components (header, footer)
+- Example: [profile.php](mdc:app/views/Account/profile.php)
+
+## Controllers
+Controllers in [app/controllers](mdc:app/controllers) are responsible for:
+- Processing user requests
+- Calling appropriate model methods
+- Passing data to views
+- Managing session data
+- Handling form submissions
+- Example: [AccountController.php](mdc:app/controllers/AccountController.php)
+
+## Best Practices
+- Keep controllers thin by moving business logic to models
+- Use consistent error handling and validation in controllers
+- Sanitize data in models before database operations
+- Use proper session management for authentication
+- Follow RESTful route naming where appropriate
+

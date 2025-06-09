@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# UI and Styling Framework
+
+This application uses Bootstrap 5 as its primary CSS framework with additional libraries for enhanced UI elements.
+
+## CSS Framework and Libraries
+- **Bootstrap 5**: Core CSS framework for responsive layout and components
+- **Font Awesome 6**: Icon library
+- **Google Fonts**: Typography with Poppins as primary font
+- **Glide.js**: For carousels and sliders
+- **Fancybox**: For image lightboxes and galleries
+
+## UI Component Patterns
+
+### Cards
+Used for containing related content with consistent styling:
+
+```html
+<div class="card">
+    <div class="card-body">
+        <!-- Card content -->
+    </div>
+</div>
+```
+
+### Form Groups
+Consistent form element styling:
+
+```html
+<div class="form-group">
+    <label for="inputId">Label Text</label>
+    <input type="text" class="form-control" id="inputId" name="inputName">
+    <small class="form-text text-muted">Help text</small>
+</div>
+```
+
+### Alerts
+For feedback messages:
+
+```html
+<div class="alert alert-success|danger|warning">
+    <p>Alert message</p>
+</div>
+```
+
+### Navigation
+Bootstrap navbar with dropdown support:
+
+```html
+<nav class="navbar navbar-expand-lg navbar-light">
+    <!-- Navigation content -->
+</nav>
+```
+
+## Responsive Design
+- Mobile-first approach using Bootstrap's grid system
+- Use of responsive utility classes for spacing and visibility
+- Consistent breakpoints (xs, sm, md, lg, xl) across the application
+

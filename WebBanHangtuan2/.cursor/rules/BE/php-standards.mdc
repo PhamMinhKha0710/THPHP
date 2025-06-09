@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PHP Coding Standards
+
+This project follows PHP best practices with influences from modern frameworks:
+
+## General Principles
+- Use PHP 7.4+ features (typed properties, null coalescing operator)
+- Follow PSR-12 coding standards
+- Implement proper error handling with try-catch blocks
+- Use type hints for method parameters when possible
+
+## Database Operations
+- Use prepared statements with PDO for database operations
+- Bind parameters to prevent SQL injection
+- Use meaningful variable names for query parameters
+
+## Security
+- Sanitize user input using `htmlspecialchars()` and `strip_tags()`
+- Validate form data on both client and server side
+- Hash passwords using `password_hash()` and `password_verify()`
+- Use PHP session management for authentication
+
+## Example Pattern
+From [AccountModel.php](mdc:app/models/AccountModel.php):
+```php
+public function getAccountByUsername($username)
+{
+    $query = "SELECT * FROM account WHERE username = :username";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_OBJ);
+    return $result;
+}
+```
+

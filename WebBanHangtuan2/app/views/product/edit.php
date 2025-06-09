@@ -9,34 +9,34 @@
         <div class="alert alert-danger"> 
             <ul> 
                 <?php foreach ($errors as $error): ?> 
-                    <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li> 
+                    <li><?php echo htmlspecialchars(is_object($error) ? $error : $error, ENT_QUOTES, 'UTF-8'); ?></li> 
                 <?php endforeach; ?> 
             </ul> 
         </div> 
     <?php endif; ?> 
 
     <form method="POST" action="/THPHP/WebBanHangtuan2/Product/update" enctype="multipart/form-data" onsubmit="return validateForm();"> 
-        <input type="hidden" name="id" value="<?php echo $product->id; ?>">
+        <input type="hidden" name="id" value="<?php echo is_object($product) ? $product->id : $product['id']; ?>">
         <div class="row">
             <div class="col-md-8">
                 <div class="form-group mb-3"> 
                     <label for="name">Tên sản phẩm:</label> 
-                    <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8'); ?>" required> 
+                    <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars(is_object($product) ? $product->name : $product['name'], ENT_QUOTES, 'UTF-8'); ?>" required> 
                 </div> 
                 <div class="form-group mb-3"> 
                     <label for="description">Mô tả:</label> 
-                    <textarea id="description" name="description" class="form-control" required><?php echo htmlspecialchars($product->description, ENT_QUOTES, 'UTF-8'); ?></textarea> 
+                    <textarea id="description" name="description" class="form-control" required><?php echo htmlspecialchars(is_object($product) ? $product->description : $product['description'], ENT_QUOTES, 'UTF-8'); ?></textarea> 
                 </div> 
                 <div class="form-group mb-3"> 
                     <label for="price">Giá:</label> 
-                    <input type="number" id="price" name="price" class="form-control" step="0.01" value="<?php echo htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8'); ?>" required> 
+                    <input type="number" id="price" name="price" class="form-control" step="0.01" value="<?php echo htmlspecialchars(is_object($product) ? $product->price : $product['price'], ENT_QUOTES, 'UTF-8'); ?>" required> 
                 </div> 
                 <div class="form-group mb-3"> 
                     <label for="category_id">Danh mục:</label> 
                     <select id="category_id" name="category_id" class="form-control" required> 
                         <?php foreach ($categories as $category): ?> 
-                            <option value="<?php echo $category->id; ?>" <?php echo $category->id == $product->category_id ? 'selected' : ''; ?>> 
-                                <?php echo htmlspecialchars($category->name, ENT_QUOTES, 'UTF-8'); ?> 
+                            <option value="<?php echo is_object($category) ? $category->id : $category['id']; ?>" <?php echo (is_object($category) ? $category->id : $category['id']) == (is_object($product) ? $product->category_id : $product['category_id']) ? 'selected' : ''; ?>> 
+                                <?php echo htmlspecialchars(is_object($category) ? $category->name : $category['name'], ENT_QUOTES, 'UTF-8'); ?> 
                             </option> 
                         <?php endforeach; ?> 
                     </select> 
@@ -70,14 +70,14 @@
                         </div>
                     </div>
                     
-                    <input type="hidden" name="existing_image" value="<?php echo $product->image; ?>">
+                    <input type="hidden" name="existing_image" value="<?php echo is_object($product) ? $product->image : $product['image']; ?>">
                     <input type="hidden" name="image_source" id="image_source" value="file">
                     
                     <div class="image-preview-container mt-3 text-center">
-                        <img id="imagePreview" src="<?php echo $product->image ? '/THPHP/WebBanHangtuan2/' . $product->image : '#'; ?>" 
-                             alt="Preview" class="img-thumbnail" style="max-height: 250px; max-width: 100%; <?php echo $product->image ? '' : 'display: none;'; ?>">
+                        <img id="imagePreview" src="<?php echo (is_object($product) ? $product->image : $product['image']) ? '/THPHP/WebBanHangtuan2/' . (is_object($product) ? $product->image : $product['image']) : '#'; ?>" 
+                             alt="Preview" class="img-thumbnail" style="max-height: 250px; max-width: 100%; <?php echo (is_object($product) ? $product->image : $product['image']) ? '' : 'display: none;'; ?>">
                         <div id="previewPlaceholder" class="border rounded p-3 text-center text-muted" 
-                             style="height: 200px; display: flex; align-items: center; justify-content: center; <?php echo $product->image ? 'display: none;' : ''; ?>">
+                             style="height: 200px; display: flex; align-items: center; justify-content: center; <?php echo (is_object($product) ? $product->image : $product['image']) ? 'display: none;' : ''; ?>">
                             <div>
                                 <i class="fas fa-image fa-3x mb-3"></i>
                                 <div>Chọn ảnh để xem trước</div>

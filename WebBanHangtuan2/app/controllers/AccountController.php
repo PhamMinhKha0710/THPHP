@@ -1,12 +1,17 @@
 <?php 
 require_once('app/config/database.php'); 
 require_once('app/models/AccountModel.php'); 
+require_once('app/utils/JWTHandler.php'); 
+
 class AccountController { 
     private $accountModel; 
     private $db; 
+    private $jwtHandler;
+    
     public function __construct() { 
         $this->db = (new Database())->getConnection(); 
-        $this->accountModel = new AccountModel($this->db); 
+        $this->accountModel = new AccountModel($this->db);
+        $this->jwtHandler = new JWTHandler();
     } 
  
     function register(){ 
@@ -61,7 +66,11 @@ class AccountController {
          
         unset($_SESSION['username']); 
         unset($_SESSION['role']); 
- 
+        unset($_SESSION['jwt_token']);
+        
+        // Xóa cookie JWT nếu có
+        setcookie('jwt_token', '', time() - 3600, '/');
+
         header('Location: /THPHP/WebBanHangtuan2/Product'); 
     } 
     public function checkLogin(){ 
@@ -91,10 +100,22 @@ class AccountController {
                 //check mat khau 
                 if (password_verify($password, $pwd_hashed)) { 
                     // Đã có session_start() trong index.php, không cần gọi lại
-                    // $_SESSION['user_id'] = $account->id; 
                     $_SESSION['user_id'] = $account->id;
                     $_SESSION['role'] = $account->role; 
                     $_SESSION['username'] = $account->username; 
+
+                    // Tạo JWT token
+                    $tokenData = [
+                        'id' => $account->id,
+                        'username' => $account->username,
+                        'role' => $account->role
+                    ];
+                    
+                    $jwt = $this->jwtHandler->encode($tokenData);
+                    
+                    // Lưu token vào session và cookie
+                    $_SESSION['jwt_token'] = $jwt;
+                    setcookie('jwt_token', $jwt, time() + 3600, '/', '', false, true);
 
                     header('Location: /THPHP/WebBanHangtuan2/Product'); 
                     exit; 

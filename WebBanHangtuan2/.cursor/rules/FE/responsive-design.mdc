@@ -1,0 +1,72 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Responsive Design Patterns
+
+This application follows responsive design best practices using Bootstrap 5's grid system and responsive utilities.
+
+## Responsive Grid System
+The application uses Bootstrap's 12-column grid system for layout:
+
+```html
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <!-- Content for medium screens and up, centered -->
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-4">
+            <!-- Full width on small screens, 1/3 width on medium screens and up -->
+        </div>
+        <div class="col-12 col-md-8">
+            <!-- Full width on small screens, 2/3 width on medium screens and up -->
+        </div>
+    </div>
+</div>
+```
+
+## Responsive Breakpoints
+- **xs**: < 576px (Extra small devices - phones)
+- **sm**: ≥ 576px (Small devices - large phones/small tablets)
+- **md**: ≥ 768px (Medium devices - tablets)
+- **lg**: ≥ 992px (Large devices - desktops)
+- **xl**: ≥ 1200px (Extra large devices - large desktops)
+- **xxl**: ≥ 1400px (Extra extra large devices)
+
+## Responsive Utilities
+- **Spacing**: Responsive margin and padding classes (e.g., `my-3 my-md-5`)
+- **Display**: Conditional visibility (e.g., `d-none d-md-block`)
+- **Flexbox**: Responsive flexbox utilities (e.g., `flex-column flex-md-row`)
+
+## Mobile-First Navigation
+The main navigation collapses on small screens using Bootstrap's navbar component:
+
+```html
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+        <a class="navbar-brand" href="/">Brand</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Navigation items that collapse on mobile -->
+        </div>
+    </div>
+</nav>
+```
+
+## Responsive Images
+Images use responsive classes for proper scaling:
+
+```html
+<img src="image.jpg" class="img-fluid" alt="Responsive image">
+```
+
+## Best Practices
+- Always test designs across multiple viewport sizes
+- Use relative units (rem, em, %) instead of fixed units (px) when appropriate
+- Implement touch-friendly elements for mobile users (adequate spacing, larger touch targets)
+- Optimize assets for mobile connections (compressed images, lazy loading)

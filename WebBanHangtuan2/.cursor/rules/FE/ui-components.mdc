@@ -1,0 +1,53 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# UI Components and Styling
+
+This application uses Bootstrap 5 for styling and UI components:
+
+## Shared Components
+- Header: [header.php](mdc:app/views/shares/header.php)
+- Footer: [footer.php](mdc:app/views/shares/footer.php)
+
+## CSS Framework
+- Bootstrap 5 is loaded from CDN
+- Font Awesome 6 for icons
+- Google Fonts for typography
+- Custom CSS is included for specific components
+
+## Form Styling
+- Bootstrap form classes for consistent styling
+- Alert components for error and success messages
+- Card components for form containers
+
+## Navigation
+- Bootstrap navbar component for main navigation
+- Dropdown menu for user account options
+- Responsive design with mobile menu toggle
+
+## Best Practices
+- Use Bootstrap grid system for layout
+- Include appropriate ARIA attributes for accessibility
+- Use consistent spacing and typography
+- Implement responsive design patterns
+- Use proper HTML5 semantic elements
+
+## Example
+From [profile.php](mdc:app/views/Account/profile.php):
+```php
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <h4>Tài khoản</h4>
+            </div>
+            <div class="col-md-9">
+                <p class="lead"><?php echo htmlspecialchars($_SESSION['username']); ?></p>
+            </div>
+        </div>
+    </div>
+</div>
+```
+

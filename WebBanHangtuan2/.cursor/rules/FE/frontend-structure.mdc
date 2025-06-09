@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Frontend Structure
+
+This application follows a structured approach to frontend organization:
+
+## View Structure
+- Views are located in [app/views](mdc:app/views)
+- Shared components like headers and footers are in [app/views/shares](mdc:app/views/shares)
+- Feature-specific views are organized in dedicated folders (e.g., [app/views/Account](mdc:app/views/Account))
+
+## Key Frontend Components
+- **Header**: [header.php](mdc:app/views/shares/header.php) - Contains navigation, search, and user account controls
+- **Footer**: [footer.php](mdc:app/views/shares/footer.php) - Contains site information, links, and JavaScript includes
+
+## Page Structure
+Each page follows a consistent structure:
+1. Include the header
+2. Main content with consistent container classes
+3. Include the footer
+
+Example from [profile.php](mdc:app/views/Account/profile.php):
+```php
+<?php
+require_once 'app/views/shares/header.php';
+?>
+
+<div class="container py-5">
+    <!-- Page content -->
+</div>
+
+<?php
+require_once 'app/views/shares/footer.php';
+?>

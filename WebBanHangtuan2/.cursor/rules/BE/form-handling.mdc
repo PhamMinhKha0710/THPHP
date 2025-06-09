@@ -1,0 +1,58 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Form Handling Guidelines
+
+This application follows consistent patterns for form handling:
+
+## Form Structure
+- Forms should include appropriate CSRF protection
+- Use descriptive name attributes for form fields
+- Include proper labels for accessibility
+- Group related fields using appropriate HTML structure
+
+## Validation
+- Validate form data on the server side in controllers
+- Use proper error messages for invalid input
+- Store validation errors in an array to display to users
+- Repopulate form fields with previous values after validation failure
+
+## Example Pattern
+From [AccountController.php](mdc:app/controllers/AccountController.php):
+```php
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+    
+    $errors = [];
+    if (empty($username)) {
+        $errors['username'] = "Vui lòng nhập username!";
+    }
+    if (empty($password)) {
+        $errors['password'] = "Vui lòng nhập password!";
+    }
+    
+    if (count($errors) > 0) {
+        include_once 'app/views/account/login.php';
+    } else {
+        // Process form submission
+    }
+}
+```
+
+## Form Display
+From [login.php](mdc:app/views/Account/login.php):
+```php
+<?php if (isset($errors) && count($errors) > 0) : ?>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <?php foreach ($errors as $error) : ?>
+                <li><?php echo htmlspecialchars($error); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+```
+

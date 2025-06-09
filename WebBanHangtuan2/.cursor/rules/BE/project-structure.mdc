@@ -1,0 +1,42 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Project Structure
+
+This PHP web application follows an MVC-like architecture with clear separation between backend and frontend components.
+
+## Directory Structure Overview
+
+### Backend Components
+- **Models**: [app/models](mdc:app/models) - Backend business logic and data access
+  - Example: [AccountModel.php](mdc:app/models/AccountModel.php) - Handles account data operations
+- **Controllers**: [app/controllers](mdc:app/controllers) - Request handling and application flow
+  - Example: [AccountController.php](mdc:app/controllers/AccountController.php) - Processes account-related actions
+- **Configuration**: [app/config](mdc:app/config) - Application configuration including database settings
+
+### Frontend Components
+- **Views**: [app/views](mdc:app/views) - HTML templates and presentation layer
+  - **Account Views**: [app/views/Account](mdc:app/views/Account) - User account interface
+    - [login.php](mdc:app/views/Account/login.php) - Login form
+    - [register.php](mdc:app/views/Account/register.php) - Registration form
+    - [profile.php](mdc:app/views/Account/profile.php) - User profile display
+    - [edit.php](mdc:app/views/Account/edit.php) - Profile editing form
+    - [changePassword.php](mdc:app/views/Account/changePassword.php) - Password change form
+  - **Shared Components**: [app/views/shares](mdc:app/views/shares) - Reusable UI elements
+    - [header.php](mdc:app/views/shares/header.php) - Common page header
+    - [footer.php](mdc:app/views/shares/footer.php) - Common page footer
+- **Assets**: [public](mdc:public) - Public assets like CSS, JavaScript, and images
+
+## Application Flow
+1. User requests are received by [index.php](mdc:index.php) at the application root
+2. The routing system determines the appropriate controller and action
+3. Controllers process the request, interact with models, and pass data to views
+4. Views render the HTML output which is returned to the user
+
+## Development Approach
+- Backend developers focus on models, controllers, and business logic
+- Frontend developers focus on views, CSS, JavaScript, and user experience
+
+

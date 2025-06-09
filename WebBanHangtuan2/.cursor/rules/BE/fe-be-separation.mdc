@@ -1,0 +1,67 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Frontend vs Backend Separation
+
+This application follows an MVC architecture with clear separation between frontend and backend components.
+
+## Frontend Components
+Frontend development focuses on the presentation layer:
+
+### Frontend Files and Directories
+- **Views**: [app/views](mdc:app/views) - All UI templates and presentation logic
+  - **Shared Components**: [app/views/shares](mdc:app/views/shares) - Reusable UI elements
+  - **Feature Views**: [app/views/Account](mdc:app/views/Account), etc. - Feature-specific templates
+- **Public Assets**: 
+  - **CSS**: [public/css](mdc:public/css) - Stylesheets
+  - **JavaScript**: [public/js](mdc:public/js) - Frontend scripts
+  - **Images**: [public/images](mdc:public/images) - Image assets
+
+### Frontend Responsibilities
+- HTML markup and structure
+- CSS styling and responsive design
+- Client-side validation
+- User interaction and experience
+- Asset management and optimization
+- Form layout and visual feedback
+
+## Backend Components
+Backend development focuses on business logic and data management:
+
+### Backend Files and Directories
+- **Controllers**: [app/controllers](mdc:app/controllers) - Request handling and application flow
+- **Models**: [app/models](mdc:app/models) - Business logic and data operations
+- **Config**: [app/config](mdc:app/config) - Application configuration
+
+### Backend Responsibilities
+- Data processing and validation
+- Database operations
+- Business logic implementation
+- Authentication and authorization
+- Server-side security
+- Session management
+- API endpoints and data services
+
+## Interface Between Frontend and Backend
+- Controllers pass data to views for rendering
+- Form submissions are processed by controllers
+- Models provide data that controllers pass to views
+- Validation errors from backend are displayed by frontend components
+
+## Development Workflow
+
+### Frontend Developer Tasks
+- Implement UI designs using HTML, CSS, and Bootstrap
+- Create responsive layouts and components
+- Implement client-side validation and interactivity
+- Optimize assets for performance
+- Ensure cross-browser compatibility
+
+### Backend Developer Tasks
+- Implement business logic in models
+- Create and optimize database queries
+- Handle form submissions and data processing
+- Implement security measures and validation
+- Manage application state and sessions

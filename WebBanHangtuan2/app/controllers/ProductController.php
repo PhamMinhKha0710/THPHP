@@ -4,12 +4,14 @@ require_once('app/config/database.php');
 require_once('app/models/ProductModel.php'); 
 require_once('app/models/CategoryModel.php'); 
 require_once('app/models/SiteConfigModel.php');
+require_once('app/helpers/ApiHelper.php');
  
 class ProductController 
 { 
     private $productModel; 
     private $db; 
     private $categoryModel;
+    private $apiHelper;
  
     public function __construct() 
     { 
@@ -21,12 +23,24 @@ class ProductController
         $this->db = (new Database())->getConnection(); 
         $this->productModel = new ProductModel($this->db); 
         $this->categoryModel = new CategoryModel($this->db);
+        $this->apiHelper = new ApiHelper();
     } 
  
     public function index() 
     { 
-        $products = $this->productModel->getProducts(); 
-        $categories = $this->categoryModel->getCategories();
+        // Thử lấy dữ liệu từ API trước
+        $products = $this->apiHelper->getAllProducts();
+        $categories = $this->apiHelper->getAllCategories();
+        
+        // Nếu API không hoạt động, fallback về database
+        if ($products === null) {
+            $products = $this->productModel->getProducts();
+        }
+        
+        if ($categories === null) {
+            $categories = $this->categoryModel->getCategories();
+        }
+        
         include 'app/views/product/list.php'; 
     } 
 
@@ -49,8 +63,13 @@ class ProductController
             // Add category to breadcrumbs
             $breadcrumbs[htmlspecialchars($category->name)] = null;
             
-            // Get products from this category
-            $products = $this->productModel->getProductsByCategory($category->id);
+            // Thử lấy dữ liệu từ API
+            $products = $this->apiHelper->getProductsByCategory($category->id);
+            
+            // Nếu API không hoạt động, fallback về database
+            if ($products === null) {
+                $products = $this->productModel->getProductsByCategory($category->id);
+            }
             
             // Include the category view
             include 'app/views/product/category.php';
@@ -63,7 +82,13 @@ class ProductController
  
     public function show($id) 
     { 
-        $product = $this->productModel->getProductById($id); 
+        // Thử lấy dữ liệu từ API
+        $product = $this->apiHelper->getProductById($id);
+        
+        // Nếu API không hoạt động, fallback về database
+        if ($product === null) {
+            $product = $this->productModel->getProductById($id);
+        }
  
         if ($product) { 
             include 'app/views/product/show.php'; 
@@ -81,7 +106,14 @@ class ProductController
             exit;
         }
         
-        $categories = $this->categoryModel->getCategories(); 
+        // Thử lấy danh mục từ API
+        $categories = $this->apiHelper->getAllCategories();
+        
+        // Nếu API không hoạt động, fallback về database
+        if ($categories === null) {
+            $categories = $this->categoryModel->getCategories();
+        }
+        
         include_once 'app/views/product/add.php'; 
     } 
  
@@ -114,20 +146,49 @@ class ProductController
                         $image = $this->saveImageFromUrl($_POST['image_url']);
                     }
                 }
-               
-                $result = $this->productModel->addProduct($name, $description, $price, 
-$category_id, $image); 
+                
+                // Tạo dữ liệu cho API
+                $productData = [
+                    'name' => $name,
+                    'description' => $description,
+                    'price' => $price,
+                    'category_id' => $category_id,
+                    'image' => $image
+                ];
+                
+                // Thử gọi API để thêm sản phẩm
+                $apiResult = $this->apiHelper->createProduct($productData);
+                
+                // Nếu API không thành công, fallback về database
+                if ($apiResult === null) {
+                    $result = $this->productModel->addProduct($name, $description, $price, $category_id, $image);
+                } else {
+                    // Xử lý kết quả từ API
+                    if (isset($apiResult->errors)) {
+                        $result = (array) $apiResult->errors;
+                    } else {
+                        $result = true;
+                    }
+                }
          
                 if (is_array($result)) { 
                     $errors = $result; 
-                    $categories = $this->categoryModel->getCategories(); 
+                    // Lấy danh mục từ API hoặc DB
+                    $categories = $this->apiHelper->getAllCategories();
+                    if ($categories === null) {
+                        $categories = $this->categoryModel->getCategories();
+                    }
                     include 'app/views/product/add.php'; 
                 } else { 
                     header('Location: /THPHP/webbanhangtuan2/Product'); 
                 }
             } catch (Exception $e) {
                 $errors = ['image' => $e->getMessage()];
-                $categories = $this->categoryModel->getCategories(); 
+                // Lấy danh mục từ API hoặc DB
+                $categories = $this->apiHelper->getAllCategories();
+                if ($categories === null) {
+                    $categories = $this->categoryModel->getCategories();
+                }
                 include 'app/views/product/add.php';
             }
         } 
@@ -142,8 +203,18 @@ $category_id, $image);
             exit;
         }
         
-        $product = $this->productModel->getProductById($id); 
-        $categories = $this->categoryModel->getCategories(); 
+        // Thử lấy dữ liệu từ API
+        $product = $this->apiHelper->getProductById($id);
+        $categories = $this->apiHelper->getAllCategories();
+        
+        // Nếu API không hoạt động, fallback về database
+        if ($product === null) {
+            $product = $this->productModel->getProductById($id);
+        }
+        
+        if ($categories === null) {
+            $categories = $this->categoryModel->getCategories();
+        }
  
         if ($product) { 
             include 'app/views/product/edit.php'; 
@@ -184,9 +255,26 @@ $category_id, $image);
                     $image = $_POST['existing_image'];
                 }
             }
- 
-            $edit = $this->productModel->updateProduct($id, $name, $description, 
-$price, $category_id, $image); 
+            
+            // Tạo dữ liệu cho API
+            $productData = [
+                'name' => $name,
+                'description' => $description,
+                'price' => $price,
+                'category_id' => $category_id,
+                'image' => $image
+            ];
+            
+            // Thử gọi API để cập nhật sản phẩm
+            $apiResult = $this->apiHelper->updateProduct($id, $productData);
+            
+            // Nếu API không thành công, fallback về database
+            if ($apiResult === null) {
+                $edit = $this->productModel->updateProduct($id, $name, $description, $price, $category_id, $image);
+            } else {
+                // API thành công
+                $edit = true;
+            }
  
             if ($edit) { 
                 header('Location: /THPHP/webbanhangtuan2/Product'); 
@@ -205,8 +293,18 @@ $price, $category_id, $image);
             exit;
         }
         
-        if ($this->productModel->deleteProduct($id)) { 
-  header('Location: /THPHP/webbanhangtuan2/Product'); 
+        // Thử xóa qua API
+        $apiResult = $this->apiHelper->deleteProduct($id);
+        
+        // Nếu API không thành công, fallback về database
+        if ($apiResult === null) {
+            $result = $this->productModel->deleteProduct($id);
+        } else {
+            $result = true;
+        }
+        
+        if ($result) { 
+            header('Location: /THPHP/webbanhangtuan2/Product'); 
         } else { 
             echo "Đã xảy ra lỗi khi xóa sản phẩm."; 
         } 

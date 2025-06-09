@@ -1,0 +1,54 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Security Best Practices
+
+This application implements several security measures:
+
+## Input Sanitization
+- Always sanitize user input before displaying or storing
+- Use `htmlspecialchars()` to prevent XSS attacks
+- Use `strip_tags()` to remove unwanted HTML from input
+
+## Password Management
+- Hash passwords using PHP's `password_hash()` function with BCrypt
+- Verify passwords using `password_verify()`
+- Never store plain-text passwords
+
+Example from [AccountController.php](mdc:app/controllers/AccountController.php):
+```php
+$password = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+```
+
+## Database Security
+- Use prepared statements with parameter binding
+- Never concatenate user input directly into SQL queries
+- Use PDO for database operations
+
+Example from [AccountModel.php](mdc:app/models/AccountModel.php):
+```php
+$query = "SELECT * FROM account WHERE username = :username";
+$stmt = $this->conn->prepare($query);
+$stmt->bindParam(':username', $username, PDO::PARAM_STR);
+```
+
+## Session Management
+- Use PHP's session management for authentication
+- Implement proper session validation
+- Check user authentication status before allowing access to restricted pages
+
+Example from [AccountController.php](mdc:app/controllers/AccountController.php):
+```php
+if (!isset($_SESSION['username'])) {
+    header('Location: /webbanhang/account/login');
+    exit;
+}
+```
+
+## Form Submission
+- Validate all form inputs on the server side
+- Implement CSRF protection for forms
+- Use HTTP POST for forms that change data
+

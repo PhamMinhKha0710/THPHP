@@ -9,7 +9,7 @@
         <div class="alert alert-danger">
             <ul>
                 <?php foreach ($errors as $error): ?>
-                    <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
+                    <li><?php echo htmlspecialchars(is_object($error) ? $error : $error, ENT_QUOTES, 'UTF-8'); ?></li>
                 <?php endforeach; ?>
             </ul>
         </div>
@@ -34,8 +34,8 @@
                     <label for="category_id">Danh mục:</label>
                     <select id="category_id" name="category_id" class="form-control" required>
                         <?php foreach ($categories as $category): ?>
-                            <option value="<?php echo $category->id; ?>">
-                                <?php echo htmlspecialchars($category->name, ENT_QUOTES, 'UTF-8'); ?>
+                            <option value="<?php echo is_object($category) ? $category->id : $category['id']; ?>">
+                                <?php echo htmlspecialchars(is_object($category) ? $category->name : $category['name'], ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

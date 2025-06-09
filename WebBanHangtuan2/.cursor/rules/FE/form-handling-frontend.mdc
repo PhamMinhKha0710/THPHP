@@ -1,0 +1,67 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Frontend Form Handling
+
+This application follows consistent patterns for frontend form implementation, validation, and error handling.
+
+## Form Structure
+Forms follow a consistent structure as shown in [edit.php](mdc:app/views/Account/edit.php):
+
+```html
+<form action="/THPHP/WebBanHangtuan2/Account/update" method="POST">
+    <!-- Form groups -->
+    <div class="form-group">
+        <label for="inputName">Label</label>
+        <input type="text" class="form-control" id="inputName" name="inputName">
+    </div>
+    
+    <!-- Submit buttons -->
+    <div class="form-group text-center mt-4">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a href="/cancel/path" class="btn btn-secondary ml-2">Cancel</a>
+    </div>
+</form>
+```
+
+## Error Display
+Error messages are displayed using Bootstrap alerts:
+
+```php
+<?php if (isset($errors) && count($errors) > 0) : ?>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <?php foreach ($errors as $error) : ?>
+                <li><?php echo htmlspecialchars($error); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+```
+
+## Success Messages
+Success notifications are displayed using Bootstrap alerts:
+
+```php
+<?php if (isset($success)) : ?>
+    <div class="alert alert-success">
+        <?php echo htmlspecialchars($success); ?>
+    </div>
+<?php endif; ?>
+```
+
+## Form Value Persistence
+Form values are preserved after validation errors:
+
+```php
+<input type="text" class="form-control" id="fullname" name="fullname" 
+    value="<?php echo htmlspecialchars($accountInfo->name ?? ''); ?>" required>
+```
+
+## Security Practices
+- All output is escaped using `htmlspecialchars()` to prevent XSS
+- Forms use POST method for data submission
+- Sensitive fields use appropriate input types (e.g., `type="password"`)
+- Required fields use the `required` attribute for basic client-side validation
